@@ -8,6 +8,8 @@ services:
       - ./data/nginx:/etc/nginx/conf.d
       - ./data/certbot/conf:/etc/letsencrypt
       - ./data/certbot/www:/var/www/certbot
+      - ./data/certbot2/conf:/etc/letsencrypt2
+      - ./data/certbot2/www:/var/www/certbot2
       - /mnt/www/:/var/www
     ports:
       - 80:80
@@ -19,6 +21,7 @@ services:
       - forum
       - mysql
       - adminer
+
   certbot:
     image: certbot/certbot
     restart: unless-stopped
@@ -28,6 +31,16 @@ services:
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
     depends_on:
       - nginx
+  certbot2:
+    image: certbot/certbot
+    restart: unless-stopped
+    volumes:
+      - ./data/certbot2/conf:/etc/letsencrypt
+      - ./data/certbot2/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    depends_on:
+      - nginx
+
   forum:
     image: php:7.3.5-apache
     depends_on:
